@@ -12,7 +12,7 @@ import numpy as np
 from tqdm import tqdm
 import pdb
 
-from helpers.datasets import partition_data
+from helpers.datasets import partition_data, partition_data_by_domain
 from helpers.synthesizers import AdvSynthesizer
 from helpers.utils import get_dataset, average_weights, DatasetSplit, KLDiv, setup_seed, test
 from models.generator import Generator
@@ -86,6 +86,10 @@ def args_parser():
                         of dataset")
     parser.add_argument('--iid', type=int, default=1,
                         help='Default set to IID. Set to 0 for non-IID.')
+    parser.add_argument('--source_list', type=str, default=None,
+                        help='comma separated list of txt files for source domains')
+    parser.add_argument('--target_list', type=str, default=None,
+                        help='txt file for target domain (test set)')
 
     # Data Free
     parser.add_argument('--adv', default=0, type=float, help='scaling factor for adv loss')
@@ -205,8 +209,15 @@ if __name__ == '__main__':
 
     setup_seed(args.seed)
     # pdb.set_trace()
-    train_dataset, test_dataset, user_groups, traindata_cls_counts = partition_data(
-        args.dataset, args.partition, beta=args.beta, num_users=args.num_users)
+    if args.source_list is not None:
+        source_files = [s.strip() for s in args.source_list.split(',') if s.strip()]
+        target_file = args.target_list
+        args.num_users = len(source_files)
+        train_dataset, test_dataset, user_groups, traindata_cls_counts = partition_data_by_domain(
+            source_files, target_file)
+    else:
+        train_dataset, test_dataset, user_groups, traindata_cls_counts = partition_data(
+            args.dataset, args.partition, beta=args.beta, num_users=args.num_users)
 
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=256,
                                               shuffle=False, num_workers=4)
