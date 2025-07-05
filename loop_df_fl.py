@@ -219,7 +219,7 @@ if __name__ == '__main__':
         train_dataset, test_dataset, user_groups, traindata_cls_counts = partition_data(
             args.dataset, args.partition, beta=args.beta, num_users=args.num_users)
 
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=256,
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=64,
                                               shuffle=False, num_workers=4)
     # BUILD MODEL
 
@@ -244,13 +244,13 @@ if __name__ == '__main__':
 
         # wandb 
 
-        for i in range(args.local_ep):
-            wandb.log({"client_{}_acc".format(users[0]):acc_list[0][i],
-                "client_{}_acc".format(users[1]):acc_list[1][i],
-                "client_{}_acc".format(users[2]):acc_list[2][i],
-                "client_{}_acc".format(users[3]):acc_list[3][i],
-                "client_{}_acc".format(users[4]):acc_list[4][i],
-            })
+        # for i in range(args.local_ep):
+        #     wandb.log({"client_{}_acc".format(users[0]):acc_list[0][i],
+        #         "client_{}_acc".format(users[1]):acc_list[1][i],
+        #         "client_{}_acc".format(users[2]):acc_list[2][i],
+        #         "client_{}_acc".format(users[3]):acc_list[3][i],
+        #         "client_{}_acc".format(users[4]):acc_list[4][i],
+        #     })
         # np.save("client_{}_acc.npy".format(args.num_users), acc_list)
         wandb.log({"client_accuracy" : wandb.plot.line_series(
             xs=[ i for i in range(args.local_ep) ],

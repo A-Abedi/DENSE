@@ -28,7 +28,8 @@ class ImageListDataset(torch.utils.data.Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        img = Image.open(self.images[idx]).convert("RGB")
+        image_path = os.path.join("/data/ali/", self.images[idx])
+        img = Image.open(image_path).convert("RGB")
         label = self.labels[idx]
         if self.transform:
             img = self.transform(img)
@@ -196,8 +197,8 @@ def partition_data_by_domain(source_files, target_file=None, transform=None):
         train_data_cls_counts (dict): class distribution for each client.
     """
     if transform is None:
-        transform = transforms.Compose([transforms.Resize(224),
-                                       transforms.CenterCrop(224),
+        transform = transforms.Compose([transforms.Resize(64),
+                                       transforms.CenterCrop(64),
                                        transforms.ToTensor()])
 
     train_datasets = []
